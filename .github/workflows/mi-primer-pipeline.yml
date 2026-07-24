@@ -1,0 +1,32 @@
+# Nombre de nuestro pipeline
+name: Pipeline Migrado de Jenkins
+
+# ¿Cuándo se ejecutará? (Cada vez que hagamos un push a la rama main)
+on:
+  push:
+    branches: [ "main" ]
+
+# Lista de trabajos a realizar
+jobs:
+  construir-y-probar:
+    # Le decimos a GitHub que nos preste un servidor Linux (Ubuntu) actualizado
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Clonar/descargar nuestro código dentro del servidor de GitHub
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      # Paso 2: Preparar el entorno de Node.js (Simil al agente de Jenkins)
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Paso 3: Equivalente a 'sh npm install' de Jenkins
+      - name: Instalar dependencias
+        run: npm install
+
+      # Paso 4: Equivalente a 'sh npm test' de Jenkins
+      - name: Ejecutar Tests
+        run: npm test
