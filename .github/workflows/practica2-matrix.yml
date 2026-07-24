@@ -1,0 +1,31 @@
+name: Practica 2 - Pruebas Multiples Versiones
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  pruebas-compatibilidad:
+    runs-on: ubuntu-latest
+
+    # Definimos la matriz de versiones
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js en versión ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Imprimir versión actual y probar
+        run: |
+          node -v
+          node app.js
+        env:
+          ENTORNO: 'Matriz-Test'
+          DB_PASS: ${{ secrets.PASSWORD_BD }}
