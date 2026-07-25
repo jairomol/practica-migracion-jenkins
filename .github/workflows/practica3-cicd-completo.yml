@@ -1,0 +1,51 @@
+name: Practica 3 - Pipeline CI CD Completo
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  # TRABAJO 1: Integración Continua (CI)
+  integracion-continua:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Probar Aplicación
+        run: |
+          echo "🧪 Corriendo pruebas unitarias..."
+          node app.js
+        env:
+          ENTORNO: 'Integracion'
+          DB_PASS: ${{ secrets.PASSWORD_BD }}
+
+      - name: Empaquetar Artefacto
+        run: |
+          echo "📦 Creando paquete de distribución..."
+          tar -czf paquete-app.tar.gz app.js
+
+      # Guardamos el artefacto construido para pasárselo a la siguiente etapa
+      - name: Guardar Artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-compilada
+          path: paquete-app.tar.gz
+
+  # TRABAJO 2: Despliegue Continuo (CD)
+  despliegue-produccion:
+    # ⚠️ REGLA DE ORO: Solo se ejecuta si el trabajo 'integracion-continua' fue exitoso
+    needs: integracion-continua
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar Artefacto de la etapa anterior
+        uses: actions/download-artifact@v4
+        with:
+          name: app-compilada
+
+      - name: Simular Despliegue a Servidor de Producción
+        run: |
+          echo "🚀 Desplegando en el servidor de producción..."
+          ls -la paquete-app.tar.gz
+          echo "✅ ¡Aplicación desplegada con éxito en Producción!"
